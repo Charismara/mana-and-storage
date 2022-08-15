@@ -29,8 +29,8 @@ description = '''
     ordering = "NONE"
     side = "BOTH"
 [[dependencies.${modId}]] #automatically generated
-    modId="refinedstorage"
+    modId="mna"
     mandatory=true
-    versionRange="${refinedStorageVersionCheck}" #automatically generated
+    versionRange="${manaAndArtifactsVersionCheck}" #automatically generated
     ordering="NONE"
     side="BOTH"

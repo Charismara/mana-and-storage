@@ -109,6 +109,7 @@ repositories {
             password = "\u0067hp_oGjcDFCn8jeTzIj4Ke9pLoEVtpnZMP4VQgaX"
         }
     }
+    maven { url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
 }
 
 dependencies {
@@ -124,11 +125,14 @@ dependencies {
     compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:${minecraftVersion}-${curiosVersion}:api")
     //Mana and Artifacts
     implementation fg.deobf("blank:mna:${mnaVersion}")
+    runtimeOnly fg.deobf('software.bernie.geckolib:geckolib-forge-1.18:3.0.34')
     //Refined Storage
     compileOnly "com.refinedmods:refinedstorage:${refinedStorageVersion}"
     runtimeOnly fg.deobf("com.refinedmods:refinedstorage:${refinedStorageVersion}") {
         transitive false
     }
+    //Refined Storage Addons
+    implementation fg.deobf("blank:refinedstorageaddons:0.8.2")
 }
 
 jar {
@@ -172,11 +176,10 @@ def replaceResources = tasks.register("replaceResources", Copy) {
         def forgeLoaderVersion = forgeVersion.substring(0, forgeVersion.indexOf('.'))
         def nextMajorMinecraftVersion = getNextMajorMinecraftVersion(minecraftVersion)
         def minecraftVersionCheck = "[${minecraftVersion},${nextMajorMinecraftVersion})"
-        def refinedStorageVersionCheck = "[${refinedStorageVersion},)"
         def manaAndArtifactsVersionCheck = "[${mnaVersion},)"
 
         include "META-INF/mods.toml"
-        expand 'forgeLoaderVersion': "[${forgeLoaderVersion},)", 'issueUrl': "${githubUrl}/issues", 'modId': modId, 'modVersion': modVersion, 'modName': modName, 'minecraftVersionCheck': minecraftVersionCheck,'refinedStorageVersionCheck':refinedStorageVersionCheck,'manaAndArtifactsVersionCheck':manaAndArtifactsVersionCheck
+        expand 'forgeLoaderVersion': "[${forgeLoaderVersion},)", 'issueUrl': "${githubUrl}/issues", 'modId': modId, 'modVersion': modVersion, 'modName': modName, 'minecraftVersionCheck': minecraftVersionCheck,'manaAndArtifactsVersionCheck':manaAndArtifactsVersionCheck
     }
     it.into "$buildDir/resources/main/"
 }
