@@ -1,9 +1,9 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "com.github.manasmods.template.core",
+  "package": "com.github.manasmods.mns.core",
   "compatibilityLevel": "JAVA_17",
-  "refmap": "template.refmap.json",
+  "refmap": "mns.refmap.json",
   "mixins": [
   ],
   "client": [

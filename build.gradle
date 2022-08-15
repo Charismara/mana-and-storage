@@ -18,20 +18,6 @@ apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'maven-publish'
 
-ext {
-    if (!project.hasProperty('manasmodsUsername')) {
-        System.out.println("No ManasMods Repo User found.")
-        //DO NOT WRITE ANYTHING INTO THIS FIELD! ANYONE CEN SEE THIS FIELD!!
-        manasmodsUsername = ""
-    }
-
-    if (!project.hasProperty('manasmodsPassword')) {
-        System.out.println("No ManasMods Repo User password found.")
-        //DO NOT WRITE ANYTHING INTO THIS FIELD! ANYONE CEN SEE THIS FIELD!!
-        manasmodsPassword = ""
-    }
-}
-
 group = 'com.github.manasmods'
 version = "${minecraftVersion}-${modVersion}"
 
@@ -51,8 +37,7 @@ minecraft {
             property 'forge.enabledGameTestNamespaces', modId
 
             mods {
-                //TODO Change template to your mod id
-                template {
+                mns {
                     source sourceSets.main
                 }
             }
@@ -65,8 +50,7 @@ minecraft {
             property 'forge.enabledGameTestNamespaces', modId
 
             mods {
-                //TODO Change template to your mod id
-                template {
+                mns {
                     source sourceSets.main
                 }
             }
@@ -79,8 +63,7 @@ minecraft {
             property 'forge.enabledGameTestNamespaces', modId
 
             mods {
-                //TODO Change template to your mod id
-                template {
+                mns {
                     source sourceSets.main
                 }
             }
@@ -93,8 +76,7 @@ minecraft {
             args '--mod', modId, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/'), '--existing-mod', 'manascore'
 
             mods {
-                //TODO Change template to your mod id
-                template {
+                mns {
                     source sourceSets.main
                 }
             }
@@ -110,17 +92,21 @@ mixin {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
-    // If you have mod jar dependencies in ./libs, you can declare them as a repository like so:
-    // flatDir {
-    //     dir 'libs'
-    // }
-
+    flatDir {
+        dirs 'libs'
+    }
+    maven { url 'https://maven.theillusivec4.top/' }
     maven {
-        url = "https://manasmods.bytesafe.dev/maven/manasmods"
-        name = "manasmods"
+        url = uri("https://maven.pkg.github.com/refinedmods/refinedstorage")
+        /* As of december 2021, GitHub packages requires authentication.
+           The password below is a personal access token that has read access to the Refined Mods repos.
+           It can be reused in other projects.
+           See: https://github.community/t/download-from-github-package-registry-without-authentication/14407/38 and
+                https://github.community/t/download-from-github-package-registry-without-authentication/14407/44
+         */
         credentials {
-            username System.getenv().getOrDefault("MANAS_REPO_USER", manasmodsUsername)
-            password System.getenv().getOrDefault("MANAS_REPO_USER_PASSWORD", manasmodsPassword)
+            username = "anything"
+            password = "\u0067hp_oGjcDFCn8jeTzIj4Ke9pLoEVtpnZMP4VQgaX"
         }
     }
 }
@@ -133,8 +119,16 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
     //Mixins
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
-    //ManasCore
-    implementation fg.deobf("com.github.manasmods:ManasCore:${minecraftVersion}-${manasCoreVersion}")
+    //curios
+    runtimeOnly fg.deobf("top.theillusivec4.curios:curios-forge:${minecraftVersion}-${curiosVersion}")
+    compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:${minecraftVersion}-${curiosVersion}:api")
+    //Mana and Artifacts
+    implementation fg.deobf("blank:mna:${mnaVersion}")
+    //Refined Storage
+    compileOnly "com.refinedmods:refinedstorage:${refinedStorageVersion}"
+    runtimeOnly fg.deobf("com.refinedmods:refinedstorage:${refinedStorageVersion}") {
+        transitive false
+    }
 }
 
 jar {
@@ -178,10 +172,11 @@ def replaceResources = tasks.register("replaceResources", Copy) {
         def forgeLoaderVersion = forgeVersion.substring(0, forgeVersion.indexOf('.'))
         def nextMajorMinecraftVersion = getNextMajorMinecraftVersion(minecraftVersion)
         def minecraftVersionCheck = "[${minecraftVersion},${nextMajorMinecraftVersion})"
-        def manasVersionCheck = "[${manasCoreVersion},)"
+        def refinedStorageVersionCheck = "[${refinedStorageVersion},)"
+        def manaAndArtifactsVersionCheck = "[${mnaVersion},)"
 
         include "META-INF/mods.toml"
-        expand 'forgeLoaderVersion': "[${forgeLoaderVersion},)", 'issueUrl': "${githubUrl}/issues", 'modId': modId, 'modVersion': modVersion, 'modName': modName, 'minecraftVersionCheck': minecraftVersionCheck, 'manasVersionCheck': manasVersionCheck
+        expand 'forgeLoaderVersion': "[${forgeLoaderVersion},)", 'issueUrl': "${githubUrl}/issues", 'modId': modId, 'modVersion': modVersion, 'modName': modName, 'minecraftVersionCheck': minecraftVersionCheck,'refinedStorageVersionCheck':refinedStorageVersionCheck,'manaAndArtifactsVersionCheck':manaAndArtifactsVersionCheck
     }
     it.into "$buildDir/resources/main/"
 }

@@ -39,7 +39,7 @@ File: `template.mixins.json`
 
 Rename file to your mod id `.mixins.json`
 
-Change the path of `"package": "com.github.manasmods.template.mixin",` to the path where your mixins are located.
+Change the path of `"package": "com.github.manasmods.mns.mixin",` to the path where your mixins are located.
 
 Replace `template` in `"refmap": "template.refmap.json",` with your mod id
 
