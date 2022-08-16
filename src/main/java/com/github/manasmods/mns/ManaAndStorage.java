@@ -26,6 +26,7 @@ public class ManaAndStorage {
         e.enqueueWork(() -> {
             if (ModList.get().isLoaded("refinedstorage")) enableAddon("Refined Storage", ChalkRuneHandler::enableRSAddon);
             if (ModList.get().isLoaded("refinedstorageaddons")) enableAddon("Refined Storage Addons", ChalkRuneHandler::enableRSAddonsAddon);
+            if (ModList.get().isLoaded("curios")) enableAddon("Curios", ChalkRuneHandler::enableCuriosAddon);
         });
     }
 

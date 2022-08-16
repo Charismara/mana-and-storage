@@ -1,5 +1,6 @@
 package com.github.manasmods.mns.handler;
 
+import com.github.manasmods.mns.CuriosHelper;
 import com.mna.blocks.tileentities.ChalkRuneTile;
 import com.mna.tools.MATags;
 import com.refinedmods.refinedstorage.api.util.Action;
@@ -27,18 +28,24 @@ class RefinedStorageAddonsHandler {
         RSAddonsItems.CREATIVE_WIRELESS_CRAFTING_GRID
     );
 
-    public static boolean check(Player player, Level world, BlockPos pos, BlockState state, ChalkRuneTile runeTile, ResourceLocation ritualReagent) {
+    public static boolean check(Player player, Level world, BlockPos pos, BlockState state, ChalkRuneTile runeTile, ResourceLocation ritualReagent, boolean curios) {
         ItemStack networkAccessItem = getNetworkAccess(player);
+        if (curios && networkAccessItem.isEmpty()) {
+            networkAccessItem = CuriosHelper.getNetworkAccess(networkAccessItems, player);
+        }
         if (networkAccessItem.isEmpty()) return false;
 
         LazyOptional<IEnergyStorage> energy = networkAccessItem.getCapability(CapabilityEnergy.ENERGY, null);
         AtomicBoolean result = new AtomicBoolean(false);
+        final ItemStack finalNetworkAccessItem = networkAccessItem;
         energy.ifPresent(iEnergyStorage -> {
-            WirelessCraftingGridItem networkAccessItemItem = (WirelessCraftingGridItem) networkAccessItem.getItem();
+            WirelessCraftingGridItem networkAccessItemItem = (WirelessCraftingGridItem) finalNetworkAccessItem.getItem();
             if (iEnergyStorage.getEnergyStored() < drainedEnergy && !networkAccessItemItem.equals(RSAddonsItems.CREATIVE_WIRELESS_CRAFTING_GRID)) return;
-            networkAccessItemItem.applyNetwork(world.getServer(), networkAccessItem,
+            networkAccessItemItem.applyNetwork(world.getServer(), finalNetworkAccessItem,
                 network -> {
-                    networkAccessItemItem.provide(network.getNetworkItemManager(), player, networkAccessItem, null).drainEnergy(drainedEnergy);
+                    if (!networkAccessItemItem.equals(RSAddonsItems.CREATIVE_WIRELESS_CRAFTING_GRID)){
+                        networkAccessItemItem.provide(network.getNetworkItemManager(), player, finalNetworkAccessItem, null).drainEnergy(drainedEnergy);
+                    }
                     Item item = ForgeRegistries.ITEMS.getValue(ritualReagent);
                     if (item != null) {
                         ItemStack stack = network.extractItem(new ItemStack(item), 1, Action.PERFORM);

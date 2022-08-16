@@ -22,6 +22,7 @@ import java.util.List;
 public class ChalkRuneHandler {
     private static boolean refinedStorage = false;
     private static boolean refinedStorageAddons = false;
+    private static boolean curios=false;
 
     @SubscribeEvent
     public static void onRightClick(PlayerInteractEvent.RightClickBlock e) {
@@ -45,13 +46,13 @@ public class ChalkRuneHandler {
         if (ritualReagent == null) return;
 
         if (refinedStorage) {
-            if (RefinedStorageHandler.check(e.getPlayer(), e.getWorld(), e.getPos(), state, runeTile, ritualReagent.getResourceLocation())) {
+            if (RefinedStorageHandler.check(e.getPlayer(), e.getWorld(), e.getPos(), state, runeTile, ritualReagent.getResourceLocation(),curios)) {
                 return;
             }
         }
 
         if (refinedStorageAddons) {
-            if (RefinedStorageAddonsHandler.check(e.getPlayer(), e.getWorld(), e.getPos(), state, runeTile, ritualReagent.getResourceLocation())) {
+            if (RefinedStorageAddonsHandler.check(e.getPlayer(), e.getWorld(), e.getPos(), state, runeTile, ritualReagent.getResourceLocation(),curios)) {
                 return;
             }
         }
@@ -70,5 +71,8 @@ public class ChalkRuneHandler {
 
     public static void enableRSAddonsAddon() {
         refinedStorageAddons = true;
+    }
+    public static void enableCuriosAddon() {
+        curios = true;
     }
 }

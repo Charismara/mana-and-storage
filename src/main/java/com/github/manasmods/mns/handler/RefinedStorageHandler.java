@@ -1,5 +1,6 @@
 package com.github.manasmods.mns.handler;
 
+import com.github.manasmods.mns.CuriosHelper;
 import com.mna.blocks.tileentities.ChalkRuneTile;
 import com.mna.tools.MATags;
 import com.refinedmods.refinedstorage.RSItems;
@@ -27,18 +28,22 @@ class RefinedStorageHandler {
         RSItems.CREATIVE_WIRELESS_GRID.get()
     );
 
-    public static boolean check(Player player, Level world, BlockPos pos, BlockState state, ChalkRuneTile runeTile, ResourceLocation ritualReagent) {
+    public static boolean check(Player player, Level world, BlockPos pos, BlockState state, ChalkRuneTile runeTile, ResourceLocation ritualReagent, boolean curios) {
         ItemStack networkAccessItem = getNetworkAccess(player);
+        if (curios && networkAccessItem.isEmpty()) {
+            networkAccessItem = CuriosHelper.getNetworkAccess(networkAccessItems, player);
+        }
         if (networkAccessItem.isEmpty()) return false;
 
         LazyOptional<IEnergyStorage> energy = networkAccessItem.getCapability(CapabilityEnergy.ENERGY, null);
         AtomicBoolean result = new AtomicBoolean(false);
+        ItemStack finalNetworkAccessItem = networkAccessItem;
         energy.ifPresent(iEnergyStorage -> {
-            NetworkItem networkAccessItemItem = (NetworkItem) networkAccessItem.getItem();
+            NetworkItem networkAccessItemItem = (NetworkItem) finalNetworkAccessItem.getItem();
             if (iEnergyStorage.getEnergyStored() < drainedEnergy && !networkAccessItemItem.equals(RSItems.CREATIVE_WIRELESS_GRID.get())) return;
-            networkAccessItemItem.applyNetwork(world.getServer(), networkAccessItem,
+            networkAccessItemItem.applyNetwork(world.getServer(), finalNetworkAccessItem,
                 network -> {
-                    network.getNetworkItemManager().getItem(player).drainEnergy(drainedEnergy);
+                    if (!networkAccessItemItem.equals(RSItems.CREATIVE_WIRELESS_GRID.get())) network.getNetworkItemManager().getItem(player).drainEnergy(drainedEnergy);
                     Item item = ForgeRegistries.ITEMS.getValue(ritualReagent);
                     if (item != null) {
                         ItemStack stack = network.extractItem(new ItemStack(item), 1, Action.PERFORM);
